@@ -1,0 +1,26 @@
+html,
+body {
+  margin: 0px;
+  background-color: #2f4f30;
+  color: #fff;
+}
+
+.title {
+  text-align: center;
+  background: #000;
+  color: #fff;
+  padding: 20px;
+  font-size: 25px;
+}
+
+.cartas {
+  position: relative;
+  width: 150px;
+  left: 100px;
+  margin-left: -75px;
+}
+
+#cards-player,
+#computer-player {
+  height: 240px;
+}
