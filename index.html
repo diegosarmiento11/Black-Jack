@@ -14,31 +14,31 @@
     <link rel="stylesheet" href="assets/css/styles.css" />
   </head>
   <body>
-    <header class="title">a la verga perro</header>
+    <header class="title">Black-Jack</header>
     <div class="row mt-2">
-      <div class="col text-center">
-        <button class="btn-primary outline">Nuevo juego</button>
-        <button class="btn-primary">Pedir carta</button>
-        <button class="btn-danger">Detener</button>
+      <div id="divBotones" class="col text-center">
+        <button id="newGame" class="btn-primary outline">Nuevo juego</button>
+        <button id="getCard" class="btn-primary">Pedir carta</button>
+        <button id="stop" class="btn-danger">Detener</button>
       </div>
     </div>
     <div class="row container">
       <div class="col">
         <h1>Jugador 1 - <small> 0 </small></h1>
         <div id="cards-player">
-          <img class="cartas" src="assets/cartas/10C.png" />
-          <img class="cartas" src="assets/cartas/10C.png" />
+          <!-- <img class="cartas" src="assets/cartas/10C.png" /> -->
         </div>
       </div>
     </div>
     <div class="row container">
       <div class="col">
         <h1>Jugador 1 - <small> 0 </small></h1>
-        <div id="computer-player mt-2">
-          <img class="cartas" src="assets/cartas/10C.png" />
+        <div id="computer-player">
+          <!-- <img class="cartas" src="assets/cartas/10C.png" /> -->
         </div>
       </div>
     </div>
+    <script src="assets/js/underScore.js"></script>
     <script src="assets/js/game.js"></script>
   </body>
 </html>
