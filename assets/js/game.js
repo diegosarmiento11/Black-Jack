@@ -5,135 +5,136 @@
  * 2S = Two of shapes
  */
 
-// Local variables scope
+(() => {
+  // Local variables scope
 
-let deck = [];
-let tipos = ["C", "D", "H", "S"];
-let special = ["J", "A", "Q", "K"];
-let maximumNumberOfDeck = 53;
-let playerScore = 0;
-computerScore = 0;
+  let deck = [],
+    tipos = ["C", "D", "H", "S"],
+    special = ["J", "A", "Q", "K"],
+    playersScore = [];
 
-// HTML references
+  // HTML references
 
-const requestCard = document.querySelector("#getCard");
-const stopCard = document.querySelector("#stop");
-const newGame = document.querySelector("#newGame");
-const updateScore = document.querySelectorAll("small");
-let divPlayerCards = document.querySelector("#cards-player");
-let divComputerCards = document.querySelector("#computer-player");
+  const requestCard = document.querySelector("#getCard"),
+    stopCard = document.querySelector("#stop"),
+    newGame = document.querySelector("#newGame"),
+    updateScore = document.querySelectorAll("small");
 
-// Create, get and summ Card values
+  let divCards = document.querySelectorAll(".divCards");
 
-const createDeck = () => {
-  for (let i = 2; i <= 10; i++) {
-    for (let tipo of tipos) {
-      deck.push(i + tipo);
+  const startGame = (numPlayers = 2) => {
+    deck = createDeck();
+    playersScore = [];
+    for (let i = 0; i < numPlayers; i++) {
+      playersScore.push(0);
     }
-  }
+  };
 
-  for (let esp of special) {
-    for (let tipo of tipos) {
-      deck.push(esp + tipo);
+  // Create, get and summ Card values
+
+  const createDeck = () => {
+    deck = [];
+    for (let i = 2; i <= 10; i++) {
+      for (let tipo of tipos) {
+        deck.push(i + tipo);
+      }
     }
-  }
-  deck = _.shuffle(deck);
-  return deck;
-};
 
-createDeck();
+    for (let esp of special) {
+      for (let tipo of tipos) {
+        deck.push(esp + tipo);
+      }
+    }
 
-const getShuffleDeck = () => {
-  const card = deck.pop();
+    return _.shuffle(deck);
+  };
 
-  if (deck.length === 0) {
-    throw "Ya no hay más cartas";
-  }
-  return card;
-};
+  const getShuffleDeck = () => {
+    if (deck.length === 0) {
+      throw "Ya no hay más cartas";
+    }
+    return deck.pop();
+  };
 
-const getCardValue = (card) => {
-  let cardValue = card.substring(0, card.length - 1);
-  let score = 0;
-  if (isNaN(cardValue)) {
-    score = cardValue === "A" ? 11 : 10;
-  } else {
-    score = cardValue * 1;
-  }
-  return score;
-};
+  const getCardValue = (card) => {
+    let cardValue = card.substring(0, card.length - 1);
+    return isNaN(cardValue) ? (cardValue === "A" ? 11 : 10) : cardValue * 1;
+  };
 
-const computerTurn = (minPoints) => {
-  do {
-    const card = getShuffleDeck();
+  // 0 computer turn, 1 player turn
 
-    computerScore = computerScore + getCardValue(card);
-    updateScore[1].innerText = computerScore;
+  const collectPlayersScore = (card, playerTurn) => {
+    playersScore[playerTurn] = playersScore[playerTurn] + getCardValue(card);
+    updateScore[playerTurn].innerText = playersScore[playerTurn];
 
+    return playersScore[playerTurn];
+  };
+
+  const createCard = (card, turn) => {
     const cardImage = document.createElement("img");
-
     cardImage.src = `assets/cartas/${card}.png`;
     cardImage.classList.add("cartas");
-    divComputerCards.append(cardImage);
+    divCards[turn].append(cardImage);
+  };
 
-    if (minPoints > 21) {
-      break;
+  const setWinner = () => {
+    const [puntosMinimos, puntosComputadora] = playersScore;
+
+    setTimeout(() => {
+      if (puntosComputadora === puntosMinimos) {
+        alert("Nadie gana :(");
+      } else if (puntosMinimos > 21) {
+        alert("Computadora gana");
+      } else if (puntosComputadora > 21) {
+        alert("Jugador Gana");
+      } else {
+        alert("Computadora Gana");
+      }
+    }, 100);
+  };
+
+  const computerTurn = (minPoints) => {
+    let computerScore = 0;
+
+    do {
+      const card = getShuffleDeck();
+
+      computerScore = collectPlayersScore(card, playersScore.length - 1);
+      createCard(card, playersScore.length - 1);
+    } while (computerScore < minPoints && minPoints <= 21);
+    setWinner();
+  };
+
+  // Click events
+
+  requestCard.addEventListener("click", () => {
+    const card = getShuffleDeck();
+
+    let playerScore = collectPlayersScore(card, 0);
+
+    createCard(card, 0);
+
+    if (playerScore >= 22) {
+      requestCard.disabled = true;
+      computerTurn(playerScore);
+    } else if (playerScore === 21) {
+      requestCard.disabled = true;
+      computerTurn(playerScore);
     }
-  } while (computerScore < minPoints && minPoints <= 21);
+  });
 
-  setTimeout(() => {
-    if (computerScore > minPoints && computerScore <= 21) {
-      alert("la computadora ganó");
-    } else if (computerScore === minPoints) {
-      alert("empate");
-    } else {
-      alert("Jugador uno ganó");
-    }
-  }, 100);
-};
-
-// Click events
-
-requestCard.addEventListener("click", () => {
-  const card = getShuffleDeck();
-
-  playerScore = playerScore + getCardValue(card);
-  updateScore[0].innerText = playerScore;
-
-  const cardImage = document.createElement("img");
-  cardImage.src = `assets/cartas/${card}.png`;
-  cardImage.classList.add("cartas");
-  divPlayerCards.append(cardImage);
-
-  if (playerScore >= 22) {
+  stopCard.addEventListener("click", () => {
     requestCard.disabled = true;
-    computerTurn(playerScore);
-  } else if (playerScore === 21) {
-    requestCard.disabled = true;
-    computerTurn(playerScore);
-  }
-});
+    stopCard.disabled = true;
+    computerTurn(playersScore[0]);
+  });
 
-stopCard.addEventListener("click", () => {
-  requestCard.disabled = true;
-  stopCard.disabled = true;
-  computerTurn(playerScore);
-});
+  newGame.addEventListener("click", () => {
+    startGame();
+  });
+  // Events
 
-newGame.addEventListener("click", () => {
-  deck = [];
-  deck = createDeck();
-
-  playerScore = 0;
-  computerScore = 0;
-
-  updateScore[0].innerText = 0;
-  updateScore[1].innerText = 0;
-
-  divPlayerCards.innerText = "";
-  divComputerCards.innerText = "";
-
-  requestCard.disabled = false;
-  stopCard.disabled = false;
-});
-// Events
+  return {
+    nuevoJuego: startGame,
+  };
+})();
